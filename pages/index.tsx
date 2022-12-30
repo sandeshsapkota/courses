@@ -1,13 +1,13 @@
 import {CourseType} from "@/@types";
 
-import ListItem from "@/components/ListItem";
-import FilterBox from "@/components/FilterBox";
-import Header from "@/components/Header";
-import Layout from "@/components/Layout";
 import {useEffect, useState} from "react";
 import ReactPaginate from 'react-paginate';
 import classNames from "classnames";
 
+import ListItem from "@/components/ListItem";
+import FilterBox from "@/components/FilterBox";
+import Header from "@/components/Header";
+import Layout from "@/components/Layout";
 
 const Home = () => {
     const [courses, setCourses] = useState([])
@@ -15,11 +15,13 @@ const Home = () => {
     const [currentItems, setCurrentItems] = useState<CourseType[]>([])
 
     const [filter, setFilter] = useState<any>({})
-    const [searching, setSearching] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
 
-    const [itemsPerPage, setItemsPerPage] = useState(5)
+    const [itemsPerPage, setItemsPerPage] = useState(6)
     const [pageCount, setPageCount] = useState(0);
     const [itemOffset, setItemOffset] = useState(0);
+
+    const [showFilter, setShowFilter] = useState(false)
 
     useEffect(() => {
         async function fetchCourse() {
@@ -40,12 +42,28 @@ const Home = () => {
     }, [])
 
 
-    const updateFilteredItems = () => {
-        const filteringArr = courses
-        const newFilterList = filteringArr.filter((course: any) => {
+    useEffect(() => {
+        const endOffset = itemOffset + itemsPerPage;
+        setCurrentItems(filteredData.slice(itemOffset, endOffset));
+        setPageCount(Math.ceil(filteredData.length / itemsPerPage));
+    }, [itemOffset, itemsPerPage, filteredData]);
+
+    const updateFilteredItems = (query:string) => {
+
+        let searchFilterList:any = []
+
+        if(query) {
+            // Case 1 - Only Search
+            searchFilterList = courses.filter((item: CourseType) => item.title.toLowerCase().includes(query.toLowerCase()))
+        }else{
+            // Case 2 -  without Search
+            searchFilterList = courses
+        }
+
+        const newFilterList = searchFilterList.filter((course: any) => {
             let isFiltered = true
             let shouldBreak = false
-            Object.entries(filter).forEach((item:any) => {
+            Object.entries(filter).forEach((item: any) => {
                 const [type, arr] = item
                 if (arr.length > 0 && !arr.includes(course[type].toLowerCase()) && !shouldBreak) {
                     isFiltered = false
@@ -59,10 +77,20 @@ const Home = () => {
         setCurrentItems(newFilterList)
     }
 
-
     useEffect(() => {
-        updateFilteredItems()
+
+        if (Object.keys(filter).length) {
+            updateFilteredItems(searchQuery)
+        } else {
+            if(searchQuery){
+                updateFilteredItems(searchQuery)
+                return
+            }
+            setFilterData(courses)
+        }
+
     }, [filter])
+
 
     const handleFilter = (e: any, param: {
         type: string,
@@ -72,76 +100,91 @@ const Home = () => {
         const {type, query} = param
 
         if (checked) {
+            // 1. Add a new item to the filter obj if checked
             const obj = {
                 ...filter,
                 [type]: filter[type] ? [...filter[type], query] : [query]
             }
             setFilter(obj)
         } else {
+            // 2 . Delete that item if unchecked
             const updatedArr = filter[type].filter((item: string) => item !== query)
-            const obj = {
-                ...filter,
-                [type]: updatedArr,
+            let obj = {
+                ...filter
             }
 
+            if (updatedArr.length) {
+                obj = {
+                    ...obj,
+                    [type]: updatedArr,
+                }
+            } else {
+                // delete the item if it is last item uncheked
+                delete obj[type]
+            }
             setFilter(obj)
         }
     }
 
     const handleSearch = (query: string) => {
         if (query) {
-            setSearching(true)
-            const searchResults = courses.filter((item: CourseType) => item.title.toLowerCase().includes(query.toLowerCase()))
-            setFilterData(searchResults)
+            setSearchQuery(query)
+            // const searchResults = courses.filter((item: CourseType) => item.title.toLowerCase().includes(query.toLowerCase()))
+            // setFilterData(searchResults)
+            updateFilteredItems(query)
         } else {
-            setSearching(false)
-            setFilterData(courses)
+            setSearchQuery('')
+            updateFilteredItems('')
         }
     }
 
-    const handleResetFilter = () => {
-        setFilter({})
-    }
-
-
-    useEffect(() => {
-        const endOffset = itemOffset + itemsPerPage;
-        setCurrentItems(filteredData.slice(itemOffset, endOffset));
-        setPageCount(Math.ceil(filteredData.length / itemsPerPage));
-    }, [itemOffset, itemsPerPage, filteredData.length]);
 
     const handlePageClick = (event: any) => {
         const newOffset = event.selected * itemsPerPage % filteredData.length;
         setItemOffset(newOffset);
     };
 
-    const [showFilter, setShowFilter] = useState(false)
+    const handleResetFilter = () => setFilter({})
 
-    const handleFilterOnMobile = (action: boolean) => setShowFilter(action)
+    const handleFilterOnMobile = () => setShowFilter(!showFilter)
 
     return (
         <Layout title={'Courses Catalog'}>
-            <Header/>
+            <Header handleFilterOnMobile={handleFilterOnMobile} showFilter={showFilter}/>
             <main className={classNames('main', {'filter--show': showFilter})}>
-                <FilterBox handleFilterOnMobile={handleFilterOnMobile} data={filteredData} handleSearch={handleSearch}
-                           filter={filter} handleResetFilter={handleResetFilter} handleFilter={handleFilter}/>
+                <FilterBox
+                    courses={courses}
+                    data={filteredData}
+                    filter={filter}
+                    handleFilterOnMobile={handleFilterOnMobile}
+                    handleSearch={handleSearch}
+                    handleResetFilter={handleResetFilter}
+                    handleFilter={handleFilter}/>
+
                 <section className={'content-wrap'}>
                     <div className={'content'}>
                         <div className="flex justify-between items-center">
                             <h4 className="content__title">Content and Streams</h4>
-                            <button className={'mobile-filter'} onClick={() => handleFilterOnMobile(true)}>Filter
-                            </button>
                         </div>
-
                         <div className="grid gap-6">
-                            {currentItems.map((course: any) => <ListItem key={course.id} course={course}/>)}
-                            <ReactPaginate
-                                breakLabel="..."
-                                nextLabel="Next"
-                                previousLabel="Prev"
-                                onPageChange={handlePageClick}
-                                pageCount={pageCount}
-                                className={'pagination flex'}/>
+                            {currentItems.length ?
+                                currentItems.map((course: CourseType) => <ListItem key={course.id} course={course}/>)
+                                :
+                                <div className={'content__empty'}>
+                                    Sorry ! No Data Found.
+                                </div>
+                            }
+                            {
+                                currentItems.length ?
+                                    <ReactPaginate
+                                        breakLabel="..."
+                                        nextLabel="Next"
+                                        previousLabel="Prev"
+                                        onPageChange={handlePageClick}
+                                        pageCount={pageCount}
+                                        className={'pagination flex'}/>
+                                    : ''
+                            }
                         </div>
                     </div>
                 </section>

@@ -7,5 +7,6 @@ export interface  CourseType{
     end_date: string
     active: boolean
     imgUrl: string
+    category: string,
     enroll_status: string
 }

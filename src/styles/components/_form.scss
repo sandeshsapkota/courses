@@ -1,8 +1,16 @@
+//===========================
+// Form Control
+//===========================
+
 .form-control{
   padding: 8px 12px;
   width: 100%;
   border: 1px solid var(--color-gray-3)
 }
+
+//===========================
+// Custom Checkbox
+//===========================
 
 .custom-input {
   --custom-input-color: #617e8a;
@@ -74,6 +82,9 @@
   }
 }
 
+//===========================
+// Search Bar
+//===========================
 
 .search{
   position: relative;
