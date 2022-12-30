@@ -1,0 +1,159 @@
+.main {
+  display: flex;
+}
+
+//===========================
+// Filter
+//===========================
+
+.filter {
+
+  &__container {
+    background: #fff;
+    width: 300px;
+    height: 100vh;
+    position: fixed;
+    top: 54px;
+    overflow: auto;
+
+    display: flex;
+    align-self: start;
+    flex-direction: column;
+    gap: 24px;
+
+    transition: .3s all;
+
+    @media (max-width:600px) {
+      width: 230px;
+      left: -100%;
+    }
+  }
+
+  &__section {
+    padding: 24px;
+  }
+
+  &__title-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px 8px;
+    border-bottom: 1px solid var(--color-gray-3);
+  }
+
+  &__reset {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--color-base)
+  }
+
+  &__icon {
+    fill: var(--color-gray-3)
+  }
+
+  &__by-title, &__category-title {
+    color: var(--color-base);
+    font-weight: 600;
+  }
+
+  &__by-title {
+    margin-top: -3px;
+    line-height: 1;
+  }
+
+  &__category-wrap {
+    padding: 24px 0;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--color-gray-3);
+    }
+  }
+
+  &__category-title {
+    font-size: 18px;
+  }
+
+  &__category-toggle {
+    color: var(--color-primary);
+  }
+
+}
+
+.filter--show .filter__container{
+    left: 0;
+}
+
+.mobile-filter{
+  display: none;
+
+  @media (max-width:600px) {
+    display: block;
+  }
+}
+
+.content {
+  padding: 16px;
+  background: var(--color-gray-1);
+
+  &-wrap {
+    padding: 24px 48px;
+    width: calc(100% - 300px);
+    margin-left: auto;
+
+    @media (max-width:600px) {
+      width: 100%;
+      margin: 0;
+      padding: 16px;
+    }
+  }
+
+  &__title {
+    font-weight: 400;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  &__item-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    flex-grow: 1;
+  }
+
+  &__item {
+    display: flex;
+  }
+
+  &__item-title {
+    color: #3f464dcc;
+    font-weight: 600;
+  }
+
+  &__item-img {
+    width: 132px;
+  }
+
+  &__item-btn {
+    min-width: 120px;
+  }
+
+  &__item-date {
+    font-weight: 700;
+    font-size: 12px;
+    color: #a5a5a6;
+    margin-left: 6px;
+  }
+
+  &__item-date b,&__item-status-stream {
+    color: #7b8d98
+  }
+
+  &__item-status-stream{
+    margin-top: 4px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+}
+
+

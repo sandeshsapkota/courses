@@ -1,0 +1,47 @@
+.grid{
+  display: grid;
+}
+
+.flex{
+  display: flex;
+}
+
+.block{
+  display: block;
+}
+
+.gap-1{
+  gap: .25rem;
+}
+
+.gap-2{
+  gap: .5rem;
+}
+
+.gap-3{
+  gap: .75rem;
+}
+
+.gap-4{
+  gap: 1rem;
+}
+
+.gap-5{
+  gap: 1.25rem;
+}
+
+.gap-6{
+  gap: 1.5rem;
+}
+
+.justify-between{
+  justify-content: space-between;
+}
+
+.items-center{
+  align-items: center;
+}
+
+.gap-8{
+  gap: 2rem;
+}
